@@ -6,5 +6,94 @@
   </head>
   <body>
     <h1>Mon image de test<h1/>
+      <py-script># Script de calcul pour le montant des loyers réference sur la MEL
+
+import pandas as pd
+import numpy as np
+
+
+df = pd.read_excel('drive/MyDrive/Colab Notebooks/ref_loyers_LLH.xlsx')
+
+# Ajouter une colonne d'index
+df['Index'] = df.index
+
+# Déplacer la colonne 'Index' en première position
+cols = df.columns.tolist()
+cols = cols[-1:] + cols[:-1]
+df = df[cols]
+#print(df)
+
+
+# input des infos
+secteur = int(input("Votre secteur : "))
+if not type(secteur) is int:
+  raise TypeError("Ce n'est pas un nombre entier valide.")
+
+nb_piece = int(input("Nombre de pièce : "))
+if not type(nb_piece) is int:
+  raise TypeError("Ce n'est pas un nombre entier valide.")
+if nb_piece > 4:
+  nb_piece = "4+"
+
+annee = int(input("Année de construction : "))
+if not type(annee) is int:
+  raise TypeError("Ce n'est pas un nombre entier valide.")
+if annee < 1946:
+  annee = "Avant 1946"
+elif annee >= 1946 and annee <= 1970:
+  annee = "1946 - 1970"
+elif annee >= 1971 and annee <= 1990:
+  annee = "1971 - 1990"
+else :
+  annee = "Après 1990"
+
+# print(annee)
+
+surface = int(input("Surface en M² : "))
+if not type(surface) is int:
+  raise TypeError("Ce n'est pas un nombre entier valide.")
+
+loc_type = str(input("Quelle est le type de location ? (M pour Meublé et NM pour Nom Meublé) : "))
+if loc_type != 'M' and loc_type != 'NM':
+  raise TypeError("Ce n'est pas une valeur souhaitée.")
+print()
+
+if loc_type == 'M':
+  print("Le bien meublé, daté " + annee + ", est situé dans le secteur " + str(secteur) + " avec " + str(nb_piece) + " pièce(s) et d'une surface de " + str(surface) + "m².")
+else:
+  print("Le bien non meublé, daté " + annee + ", est situé dans le secteur " + str(secteur) + " avec " + str(nb_piece) + " pièce(s) et d'une surface de " + str(surface) + "m².")
+
+# Calcul le prix des differents loyers
+
+# Filtre de la DataFrame pour récupérer la ligne concerné
+resultat = (df['Secteur'] == secteur) & (df['nb_pieces'] == nb_piece) & (df['epoque_construction'] == annee)
+df_filtred = df[resultat]
+
+# Récupération des différents indices
+indice_ref_m = df_filtred['loyer_ref_m'].iloc[0]
+indice_maj_m = df_filtred['ref_maj_m'].iloc[0]
+indice_min_m = df_filtred['ref_min_m'].iloc[0]
+indice_ref_nm = df_filtred['loyer_ref_nm'].iloc[0]
+indice_maj_nm = df_filtred['ref_maj_nm'].iloc[0]
+indice_min_nm = df_filtred['ref_min_nm'].iloc[0]
+
+# Calcul des différents loyers
+loyer_ref_m = indice_ref_m * surface
+loyer_maj_m = indice_maj_m * surface
+loyer_min_m = indice_min_m * surface
+loyer_ref_nm = indice_ref_nm * surface
+loyer_maj_nm = indice_maj_nm * surface
+loyer_min_nm = indice_min_nm * surface
+
+# Impression des résultats
+if loc_type == 'M':
+  print('Le loyer de référence du bien est de ' + str(loyer_ref_m) + '€')
+  print('Le loyer majoré du bien est de ' + str(loyer_maj_m) + '€')
+  print('Le loyer minoré du bien est de ' + str(loyer_min_m) + '€')
+else:
+  print('Le loyer de référence du bien est de ' + str(loyer_ref_nm) + '€')
+  print('Le loyer majoré du bien est de ' + str(loyer_maj_nm) + '€')
+  print('Le loyer minoré du bien est de ' + str(loyer_min_nm) + '€') 
+</py-script>
   </body>
 </html>
